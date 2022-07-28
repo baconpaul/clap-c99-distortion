@@ -415,8 +415,8 @@ static clap_process_status c99dist_process(const struct clap_plugin *plugin,
             break;
             case FOLD:
             {
-                tl = sin(2.0 * M_PI * tl * tl * tl);
-                tr = sin(2.0 * M_PI * tr * tr * tr);
+                tl = sin(2.0 * M_PI * tl);
+                tr = sin(2.0 * M_PI * tr);
             }
             break;
             }
