@@ -16,11 +16,23 @@ option(COPY_AFTER_BUILD "Copy the clap to ~/Library on MACOS, ~/.clap on linux" 
 
 add_subdirectory(libs/clap EXCLUDE_FROM_ALL)
 
-add_library(${PROJECT_NAME} MODULE
+if(EMSCRIPTEN)
+    add_executable(${PROJECT_NAME}
         src/clap-c99-distortion.c)
+else()
+    add_library(${PROJECT_NAME} MODULE
+        src/clap-c99-distortion.c)
+endif()
 target_link_libraries(${PROJECT_NAME} clap-core)
 
-if(APPLE)
+if(EMSCRIPTEN)
+    set_target_properties(${PROJECT_NAME} PROPERTIES COMPILE_FLAGS "-O3 -ffast-math -fno-exceptions -fno-rtti")
+    set_target_properties(${PROJECT_NAME} PROPERTIES LINK_FLAGS "-O3 -ffast-math -fno-exceptions -fno-rtti -sSTANDALONE_WASM --no-entry -sEXPORTED_FUNCTIONS=_clap_entry,_malloc -s INITIAL_MEMORY=512kb -sALLOW_MEMORY_GROWTH -sALLOW_TABLE_GROWTH -sPURE_WASI --export-table")
+
+    set_target_properties(${PROJECT_NAME} PROPERTIES RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/${PROJECT_NAME}.wclap/")
+    set_target_properties(${PROJECT_NAME} PROPERTIES OUTPUT_NAME module) # call it module.wasm
+    set(CMAKE_EXECUTABLE_SUFFIX ".wasm") # No accompanying JS
+elseif(APPLE)
     set_target_properties(${PROJECT_NAME} PROPERTIES
             BUNDLE True
             BUNDLE_EXTENSION clap
