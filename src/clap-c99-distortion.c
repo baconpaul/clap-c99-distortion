@@ -277,6 +277,15 @@ bool c99dist_state_load(const clap_plugin_t *plugin, const clap_istream_t *strea
     memcpy(&plug->mix, buffer + 8, sizeof(float));
     memcpy(&plug->mode, buffer + 12, sizeof(int32_t));
 
+    const clap_host_t* clapHost = plug->host;
+    const clap_host_params_t * p = (const clap_host_params_t *)(clapHost->get_extension(clapHost, CLAP_EXT_PARAMS));
+    if (p)
+    {
+        p->rescan(clapHost, CLAP_PARAM_RESCAN_VALUES);
+        p->rescan(clapHost, CLAP_PARAM_RESCAN_TEXT);
+        p->request_flush(clapHost);
+    }
+
     return true;
 }
 static const clap_plugin_state_t s_c99dist_state = {.save = c99dist_state_save,
